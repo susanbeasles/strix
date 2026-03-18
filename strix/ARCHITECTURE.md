@@ -1,8 +1,8 @@
-# Watchdog — ML-Powered Process Anomaly Detection
+# Strix — ML-Powered Process Anomaly Detection
 
 ## Philosophy
 
-Watchdog doesn't care if an attack has been discovered before. It doesn't need a CVE, a hash, a signature, or a YARA rule. It works on one principle:
+Strix doesn't care if an attack has been discovered before. It doesn't need a CVE, a hash, a signature, or a YARA rule. It works on one principle:
 
 > **"This shouldn't do that."**
 
@@ -19,7 +19,7 @@ The known-attack chains are a bonus, not the core. The core is behavioral deviat
 │                        osquery (EndpointSecurity)                   │
 │                                                                     │
 │  Kernel-level process event monitoring via Apple ES framework       │
-│  Every exec, fork, exit → /var/run/watchdog/results.log (JSONL)    │
+│  Every exec, fork, exit → /var/run/strix/results.log (JSONL)    │
 └──────────────────────────────┬──────────────────────────────────────┘
                                │
                                ▼
@@ -184,7 +184,7 @@ The known-attack chains are a bonus, not the core. The core is behavioral deviat
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      STORAGE & AUDIT                                │
 │                                                                     │
-│  ~/.local/share/watchdog/                                           │
+│  ~/.local/share/strix/                                           │
 │  ├── process_events.db          SQLite: events, baselines, verdicts │
 │  ├── escalations.jsonl          Every 30b escalation logged         │
 │  ├── correlations.jsonl         Every chain/anomaly trigger logged  │
@@ -228,7 +228,7 @@ The known-attack chains are a bonus, not the core. The core is behavioral deviat
 ## File Map
 
 ```
-domains/detect/watchdog/
+strix/
 ├── __main__.py          Daemon loop + CLI (daemon, scan, baseline, verdicts, status)
 ├── config.py            Paths, thresholds, model names
 ├── parser.py            osquery results log → structured events

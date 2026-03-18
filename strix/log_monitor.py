@@ -27,10 +27,10 @@ import time
 import threading
 import urllib.request
 import urllib.error
-from config import OLLAMA_URL, WATCHDOG_DIR
+from config import OLLAMA_URL, STRIX_DIR
 from scrubber import scrub
 
-log = logging.getLogger("watchdog.log_monitor")
+log = logging.getLogger("strix.log_monitor")
 
 # --- Config ---
 POLL_INTERVAL = 30       # Seconds between log polls

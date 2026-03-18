@@ -1,13 +1,13 @@
 #!/bin/zsh
-# PURPOSE: Read-only system inspection for the watchdog 30b model.
+# PURPOSE: Read-only system inspection for the strix 30b model.
 #          This script is the ONLY thing the sudoers entry allows.
 #          It whitelists specific read-only subcommands. No writes. No modifications.
 #
 # SUDOERS ENTRY (add via visudo):
-#   avespoli ALL=(root) NOPASSWD: /Users/avespoli/code/tonys-toolbox/domains/detect/watchdog/inspect.sh *
+#   avespoli ALL=(root) NOPASSWD: /Users/avespoli/code/strix/strix/inspect.sh *
 #
 # USAGE: inspect.sh <subcommand> [args...]
-#        Called by watchdog tools.py — not intended for direct use.
+#        Called by strix tools.py — not intended for direct use.
 
 set -euo pipefail
 
@@ -194,7 +194,7 @@ case "$SUBCMD" in
 
   # --- Help ---
   help|--help|-h)
-    echo "watchdog inspect — read-only system inspection"
+    echo "strix inspect — read-only system inspection"
     echo ""
     echo "Process:     ps, ps-tree, ps-pid <PID>, proc-fds <PID>"
     echo "Network:     netstat, lsof-net, lsof-listen, lsof-pid-net <PID>"

@@ -1,4 +1,4 @@
-"""Watchdog live pipeline dashboard.
+"""Strix live pipeline dashboard.
 
 Shows events flowing through the pipeline in real time:
   classify queue → 4B classifier → escalation queue → 30B investigators
@@ -8,9 +8,9 @@ Shows events flowing through the pipeline in real time:
                     log monitor (Scout)
 
 Usage:
-    python -m watchdog dashboard     (or: python dashboard.py)
+    python -m strix dashboard     (or: python dashboard.py)
 
-Reads from the daemon's log file and watchdog state directory.
+Reads from the daemon's log file and strix state directory.
 Refreshes every 2 seconds.
 """
 
@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from config import LOG_PATH, WATCHDOG_DIR, ESCALATION_LOG
+from config import LOG_PATH, STRIX_DIR, ESCALATION_LOG
 
 
 # ANSI escape codes
@@ -172,7 +172,7 @@ def parse_escalation_log() -> list[str]:
 
 def parse_investigation_state() -> list[str]:
     """Check for active investigations."""
-    inv_dir = WATCHDOG_DIR / "investigations"
+    inv_dir = STRIX_DIR / "investigations"
     if not inv_dir.exists():
         return [f"{DIM}No investigations directory{RESET}"]
 
@@ -201,7 +201,7 @@ def render(stats: dict, escalations: list[str], investigations: list[str]):
     w = 56
 
     print(CLEAR, end="")
-    print(f"{BOLD}{CYAN}  WATCHDOG PIPELINE DASHBOARD{RESET}  {DIM}{time.strftime('%H:%M:%S')}{RESET}")
+    print(f"{BOLD}{CYAN}  STRIX PIPELINE DASHBOARD{RESET}  {DIM}{time.strftime('%H:%M:%S')}{RESET}")
     print()
 
     # Row 1: Pipeline flow
@@ -268,7 +268,7 @@ def render(stats: dict, escalations: list[str], investigations: list[str]):
 
 
 def main():
-    print(f"{BOLD}Starting watchdog dashboard...{RESET}")
+    print(f"{BOLD}Starting strix dashboard...{RESET}")
     print(f"Reading from: {LOG_PATH}")
     print()
 

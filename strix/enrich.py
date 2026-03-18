@@ -12,7 +12,7 @@ import os
 import hashlib
 import logging
 
-log = logging.getLogger("watchdog.enrich")
+log = logging.getLogger("strix.enrich")
 
 
 def enrich_event(event: dict) -> dict:

@@ -20,7 +20,7 @@ import json
 import logging
 from dataclasses import dataclass
 
-log = logging.getLogger("watchdog.manifest")
+log = logging.getLogger("strix.manifest")
 
 
 @dataclass

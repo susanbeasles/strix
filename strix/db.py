@@ -3,11 +3,11 @@
 import sqlite3
 import time
 from pathlib import Path
-from config import DB_PATH, WATCHDOG_DIR
+from config import DB_PATH, STRIX_DIR
 
 
 def _ensure_dirs():
-    WATCHDOG_DIR.mkdir(parents=True, exist_ok=True)
+    STRIX_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_conn() -> sqlite3.Connection:

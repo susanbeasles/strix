@@ -9,7 +9,7 @@ import logging
 import os
 from config import OSQUERY_RESULTS_LOG, MAX_LINES_PER_POLL
 
-log = logging.getLogger("watchdog.parser")
+log = logging.getLogger("strix.parser")
 
 # Track file position for incremental reads
 _last_pos: int = 0
@@ -80,7 +80,7 @@ def poll_process_events() -> list[dict]:
 
 
 def _parse_osquery_entry(entry: dict) -> dict | None:
-    """Parse a single osquery results log entry into a watchdog event.
+    """Parse a single osquery results log entry into a strix event.
 
     Only processes es_process_events entries (exec/fork/exit).
     """

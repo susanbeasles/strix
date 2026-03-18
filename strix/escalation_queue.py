@@ -31,9 +31,9 @@ import time
 import heapq
 from dataclasses import dataclass, field
 from pathlib import Path
-from config import WATCHDOG_DIR
+from config import STRIX_DIR
 
-log = logging.getLogger("watchdog.escalation_queue")
+log = logging.getLogger("strix.escalation_queue")
 
 # --- Tunables ---
 MAX_QUEUE_DEPTH = 30         # Log warning when total queue exceeds this
@@ -41,7 +41,7 @@ SCALEUP_THRESHOLD = 3        # Spin up second worker when HIGH queue hits this
 MAX_WORKERS = 2              # Hard cap on concurrent 30b sessions
 LOCK_TTL = 150               # Seconds before an investigation lock auto-expires
                              # (AGENT_TIMEOUT=120 + 30s buffer for cleanup)
-PROMOTIONS_FILE = WATCHDOG_DIR / "priority_promotions.json"
+PROMOTIONS_FILE = STRIX_DIR / "priority_promotions.json"
 
 # --- Priority levels ---
 HIGH = 0
@@ -428,7 +428,7 @@ class EscalationQueue:
 
     def _save_promotions(self):
         """Persist promotions to disk."""
-        WATCHDOG_DIR.mkdir(parents=True, exist_ok=True)
+        STRIX_DIR.mkdir(parents=True, exist_ok=True)
         PROMOTIONS_FILE.write_text(json.dumps(self._promotions, indent=2))
 
 

@@ -1,15 +1,15 @@
-"""Watchdog — ML-powered process anomaly detector.
+"""Strix — ML-powered process anomaly detector.
 
 Reads osquery EndpointSecurity events, classifies process executions
 via Ollama, escalates suspicious activity to Claude.
 
 Usage:
-    python -m watchdog daemon      Run the continuous polling daemon
-    python -m watchdog scan        One-shot scan of recent events
-    python -m watchdog baseline    Show learned process baselines
-    python -m watchdog verdicts    Show recent verdicts
-    python -m watchdog status      Daemon health + stats
-    python -m watchdog dashboard   Live pipeline dashboard
+    python -m strix daemon      Run the continuous polling daemon
+    python -m strix scan        One-shot scan of recent events
+    python -m strix baseline    Show learned process baselines
+    python -m strix verdicts    Show recent verdicts
+    python -m strix status      Daemon health + stats
+    python -m strix dashboard   Live pipeline dashboard
 """
 
 import os
@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import (
     POLL_INTERVAL_SECONDS, SKETCHY_THRESHOLD,
-    LOG_PATH, WATCHDOG_DIR
+    LOG_PATH, STRIX_DIR
 )
 import db
 import parser
@@ -49,7 +49,7 @@ logging.basicConfig(
         logging.StreamHandler(),
     ]
 )
-log = logging.getLogger("watchdog")
+log = logging.getLogger("strix")
 
 _running = True
 
@@ -73,7 +73,7 @@ def daemon_loop():
       - Escalation worker(s): pulls from escalation queue, runs 30B
         (1 worker normally, scales to 2 when HIGH queue builds up)
     """
-    log.info("Watchdog daemon starting (poll=%ds, sketchy_threshold=%.2f)",
+    log.info("Strix daemon starting (poll=%ds, sketchy_threshold=%.2f)",
              POLL_INTERVAL_SECONDS, SKETCHY_THRESHOLD)
 
     q = ClassificationQueue()
@@ -83,7 +83,7 @@ def daemon_loop():
     # Verdict callback for escalation workers
     def _record_escalation_result(event, ruling, source):
         conn = db.get_conn()
-        db.record_verdict(conn, event, f"watchdog-escalate-30b-{source}", ruling)
+        db.record_verdict(conn, event, f"strix-escalate-30b-{source}", ruling)
         q.record_verdict(event, ruling)
         conn.close()
 
@@ -176,7 +176,7 @@ def daemon_loop():
 
     eq.stop()
     stop_scrubber()
-    log.info("Watchdog daemon stopped (classify: %s | escalate: %s)", q.stats, eq.stats)
+    log.info("Strix daemon stopped (classify: %s | escalate: %s)", q.stats, eq.stats)
 
 
 def _classifier_worker(q: ClassificationQueue, eq: EscalationQueue):
@@ -257,7 +257,7 @@ def cmd_scan():
             log.warning("ESCALATING to 30b: %s (risk=%.2f)", process, risk)
             ruling = escalate.escalate(event, result)
             if ruling:
-                db.record_verdict(conn, event, "watchdog-escalate-30b", ruling)
+                db.record_verdict(conn, event, "strix-escalate-30b", ruling)
 
     conn.close()
 
@@ -274,7 +274,7 @@ def cmd_baseline():
     """).fetchall()
 
     if not rows:
-        print("No baselines recorded yet. Run 'watchdog daemon' or 'watchdog scan' first.")
+        print("No baselines recorded yet. Run 'strix daemon' or 'strix scan' first.")
     else:
         print(f"{'Count':>6}  {'Verdict':<11} {'Process':<25} {'Signing ID':<35} {'Path'}")
         print("-" * 110)
@@ -324,14 +324,14 @@ def cmd_status():
         "SELECT COUNT(*) FROM baselines WHERE signing_id = '' OR signing_id IS NULL"
     ).fetchone()[0]
 
-    print("Watchdog Status")
+    print("Strix Status")
     print("=" * 40)
     for k, v in stats.items():
         print(f"  {k.replace('_', ' ').title():<25} {v}")
 
     # Show escalation count
-    if WATCHDOG_DIR.exists():
-        esc_log = WATCHDOG_DIR / "escalations.jsonl"
+    if STRIX_DIR.exists():
+        esc_log = STRIX_DIR / "escalations.jsonl"
         if esc_log.exists():
             with open(esc_log) as f:
                 esc_count = sum(1 for _ in f)
@@ -347,7 +347,7 @@ FORKGUARD_LIMIT = 12
 def _ensure_forkguard():
     """Re-exec through forkguard if not already wrapped.
 
-    Forkguard monitors the entire watchdog process tree. If descendants
+    Forkguard monitors the entire strix process tree. If descendants
     exceed the limit, it freezes the tree and notifies the operator.
     """
     if os.environ.get("FORKGUARD_WRAPPED"):
@@ -360,9 +360,9 @@ def _ensure_forkguard():
     cmd = [
         str(FORKGUARD),
         "--limit", str(FORKGUARD_LIMIT),
-        "--name", "watchdog",
+        "--name", "strix",
         "--",
-        sys.executable, "-m", "watchdog",
+        sys.executable, "-m", "strix",
     ] + sys.argv[1:]
 
     env = os.environ.copy()
@@ -373,9 +373,9 @@ def _ensure_forkguard():
 
 
 def _boost_priority():
-    """Renice watchdog to maximum scheduling priority (-20).
+    """Renice strix to maximum scheduling priority (-20).
 
-    When security events are firing, watchdog deserves CPU time over
+    When security events are firing, strix deserves CPU time over
     everything else. This requires root (via sudo) or the process to
     already be running as root.
     """

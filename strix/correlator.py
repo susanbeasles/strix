@@ -21,12 +21,12 @@ import time
 import sqlite3
 import logging
 from dataclasses import dataclass, field
-from config import DB_PATH, WATCHDOG_DIR
+from config import DB_PATH, STRIX_DIR
 from manifest import check_against_manifest, check_parent_against_manifest
 
-log = logging.getLogger("watchdog.correlator")
+log = logging.getLogger("strix.correlator")
 
-CORRELATION_LOG = WATCHDOG_DIR / "correlations.jsonl"
+CORRELATION_LOG = STRIX_DIR / "correlations.jsonl"
 
 
 # ============================================================
@@ -375,7 +375,7 @@ def _in_cooldown(chain_name: str, cooldown_minutes: int) -> bool:
 def _log_correlation(alert: dict):
     """Log a correlation alert to disk."""
     _last_triggered[alert["chain"]] = time.time()
-    WATCHDOG_DIR.mkdir(parents=True, exist_ok=True)
+    STRIX_DIR.mkdir(parents=True, exist_ok=True)
     with open(CORRELATION_LOG, "a") as f:
         f.write(json.dumps(alert, default=str) + "\n")
 

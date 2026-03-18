@@ -13,12 +13,12 @@ import time
 import logging
 import urllib.request
 import urllib.error
-from config import OLLAMA_URL, ESCALATION_LOG, WATCHDOG_DIR
+from config import OLLAMA_URL, ESCALATION_LOG, STRIX_DIR
 from enrich import format_enrichment
 from tools import get_ollama_tool_definitions, execute_tool, ALLOWED_DOMAINS, set_investigation_context, set_event_context
 from investigation import start_investigation, close_investigation
 
-log = logging.getLogger("watchdog.escalate")
+log = logging.getLogger("strix.escalate")
 
 ESCALATE_MODEL = "watchdog-escalate"
 
@@ -28,7 +28,7 @@ MAX_ROUNDS = 4            # Max conversation rounds before forcing a ruling
 AGENT_TIMEOUT = 120       # Total seconds before we cut her off
 
 # Domain request log — she can ASK for domains, user reviews later
-DOMAIN_REQUEST_LOG = WATCHDOG_DIR / "domain_requests.jsonl"
+DOMAIN_REQUEST_LOG = STRIX_DIR / "domain_requests.jsonl"
 
 
 def escalate(event: dict, classification: dict) -> dict | None:
@@ -174,7 +174,7 @@ def _handle_domain_request(domain: str, reason: str, event: dict) -> str:
         return f"Domain '{domain}' is already in the allowlist. Use web_lookup to fetch from it."
 
     # Log the request for user review
-    WATCHDOG_DIR.mkdir(parents=True, exist_ok=True)
+    STRIX_DIR.mkdir(parents=True, exist_ok=True)
     entry = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "domain": domain,
@@ -222,7 +222,7 @@ def _try_parse_ruling(text: str) -> dict | None:
         "risk_score": min(1.0, max(0.0, float(result.get("risk_score", 0.5)))),
         "reasoning": result.get("reasoning", "no reasoning provided"),
         "category": result.get("action", "none"),
-        "source": "watchdog-escalate-30b",
+        "source": "strix-escalate-30b",
         "tools_used": result.get("tools_used", []),
     }
 
@@ -252,7 +252,7 @@ def _finalize(event: dict, classification: dict, ruling: dict) -> dict:
 
 def _system_prompt() -> str:
     """System prompt for the 30b escalation agent."""
-    return """You are WATCHDOG ESCALATION — a senior security analyst on a HIPAA-compliant macOS workstation.
+    return """You are STRIX ESCALATION — a senior security analyst on a HIPAA-compliant macOS workstation.
 
 A smaller ML model flagged a process as suspicious. You investigate with tools and issue a final ruling.
 
@@ -330,7 +330,7 @@ SYSTEM LOG TIMELINE (±1 minute around event):
 {log_context}
 """
 
-    return f"""WATCHDOG ESCALATION — investigate this flagged {'log event' if 'log-monitor' in source else 'process'}.
+    return f"""STRIX ESCALATION — investigate this flagged {'log event' if 'log-monitor' in source else 'process'}.
 
 {'EVENT SOURCE: ' + source if source != 'osquery' else ''}
 PROCESS EVENT:
@@ -374,7 +374,7 @@ def _extract_json(text: str) -> str:
 
 
 def _log_escalation(event: dict, classification: dict, status: str):
-    WATCHDOG_DIR.mkdir(parents=True, exist_ok=True)
+    STRIX_DIR.mkdir(parents=True, exist_ok=True)
     entry = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "process": event.get("process"),

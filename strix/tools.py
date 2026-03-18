@@ -1,4 +1,4 @@
-"""Watchdog tools — the 30b model's investigative toolbelt.
+"""Strix tools — the 30b model's investigative toolbelt.
 
 These tools are called by the escalation agent loop when the 30b model
 requests additional context during process analysis. The model can
@@ -20,10 +20,10 @@ import urllib.parse
 import logging
 import os
 from pathlib import Path
-from config import DB_PATH, WATCHDOG_DIR
+from config import DB_PATH, STRIX_DIR
 from scrubber import scrub
 
-log = logging.getLogger("watchdog.tools")
+log = logging.getLogger("strix.tools")
 
 # --- Domain Allowlist ---
 # The 30b model can ONLY fetch from these domains. Everything else is blocked.
@@ -260,7 +260,7 @@ def _fetch(url: str, timeout: int = 15) -> str:
 
     try:
         req = urllib.request.Request(url, headers={
-            "User-Agent": "watchdog-security-tool/1.0",
+            "User-Agent": "strix-security-tool/1.0",
             "Accept": "text/html,application/json,text/plain",
         })
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -385,7 +385,7 @@ def lookup_mitre_technique(technique_id: str) -> str:
 
 
 def query_baseline(binary_path: str) -> str:
-    """Query the local watchdog baseline database for a binary.
+    """Query the local strix baseline database for a binary.
 
     Returns: how many times seen, first/last seen, previous verdicts,
     typical parent process, whether it's a platform binary.
@@ -903,7 +903,7 @@ TOOLS = {
     },
     "query_baseline": {
         "function": query_baseline,
-        "description": "Query the local watchdog database for a binary's history. Returns: times seen, first/last seen, previous verdicts, typical parent process.",
+        "description": "Query the local strix database for a binary's history. Returns: times seen, first/last seen, previous verdicts, typical parent process.",
         "parameters": {
             "type": "object",
             "properties": {

@@ -1,6 +1,6 @@
 """Test sequences for the scrubber queue.
 
-Run from the watchdog directory:
+Run from the strix directory:
     python test_scrubber.py
 
 Tests the queue mechanics (submit, ordering, concurrency, backpressure)

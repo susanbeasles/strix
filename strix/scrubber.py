@@ -1,4 +1,4 @@
-"""Scrubber — queue-based 4B noise filter for the watchdog pipeline.
+"""Scrubber — queue-based 4B noise filter for the strix pipeline.
 
 Callers never hit Ollama directly. They submit a job to the scrubber's
 input queue and wait on a future. The scrubber worker thread pulls jobs
@@ -28,7 +28,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from config import OLLAMA_URL
 
-log = logging.getLogger("watchdog.scrubber")
+log = logging.getLogger("strix.scrubber")
 
 MODEL = "watchdog"  # Same 4B used everywhere
 TIMEOUT = 15        # Seconds per Ollama call
@@ -66,7 +66,7 @@ class ScrubJob:
 
 
 class Scrubber:
-    """Queue-based 4B worker. One instance for the whole watchdog process."""
+    """Queue-based 4B worker. One instance for the whole strix process."""
 
     def __init__(self):
         self._deque: deque[ScrubJob | None] = deque()  # Unbounded — never drop work

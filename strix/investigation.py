@@ -17,11 +17,11 @@ import hashlib
 import shutil
 import logging
 from pathlib import Path
-from config import WATCHDOG_DIR
+from config import STRIX_DIR
 
-log = logging.getLogger("watchdog.investigation")
+log = logging.getLogger("strix.investigation")
 
-INVESTIGATIONS_DIR = WATCHDOG_DIR / "investigations"
+INVESTIGATIONS_DIR = STRIX_DIR / "investigations"
 
 
 def start_investigation(event: dict, classification: dict) -> dict:
